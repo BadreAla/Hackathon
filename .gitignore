@@ -1,0 +1,98 @@
+import smtplib
+import sys
+
+
+class bcolors:
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+
+
+def banner():
+    print(bcolors.GREEN + '+[+[+[ Email-Sender v1.0 ]+]+]+')
+    print(bcolors.GREEN + '+[+[+[ made with code ]+]+]+')
+    print(bcolors.GREEN + '''
+                     \|/
+                       `--+--'
+                          |
+                      ,--'#`--.
+                      |#######|
+                   _.-'#######`-._
+                ,-'###############`-.
+              ,'#####################`,         .___     .__         .
+             |#########################|        [__ ._ _ [__) _ ._ _ |_  _ ._.
+            |###########################|       [___[ | )[__)(_)[ | )[_)(/,[
+           |#############################|
+           |#############################|              Author: Badre Alam
+           |#############################|
+            |###########################|
+             \#########################/
+              `.#####################,'
+                `._###############_,'
+                   `--..#####..--'                                 ,-.--.
+*.______________________________________________________________,' (Test)
+                                                                    `--' ''')
+
+
+class EmailSender:
+    def __init__(self):
+        try:
+            print(bcolors.RED + '\n+[+[+[ Initializing program ]+]+]+')
+            self.target = str(input(bcolors.GREEN + 'Enter target email: '))
+            self.num_emails = int(input(bcolors.GREEN + 'Enter the number of emails to send (max 5 for testing): '))
+            if self.num_emails > 5:
+                print(bcolors.RED + 'ERROR: Too many emails for test mode. Max is 5.')
+                sys.exit(1)
+        except Exception as e:
+            print(f'ERROR: {e}')
+            sys.exit(1)
+
+    def email_setup(self):
+        try:
+            print(bcolors.RED + '\n+[+[+[ Setting up email ]+]+]+')
+            self.server_choice = str(input(bcolors.GREEN + 'Select email server - 1:Gmail 2:Yahoo 3:Outlook: '))
+            if self.server_choice == '1':
+                self.server = 'smtp.gmail.com'
+                self.port = 587
+            elif self.server_choice == '2':
+                self.server = 'smtp.mail.yahoo.com'
+                self.port = 587
+            elif self.server_choice == '3':
+                self.server = 'smtp-mail.outlook.com'
+                self.port = 587
+            else:
+                print(bcolors.RED + 'ERROR: Invalid server option.')
+                sys.exit(1)
+
+            self.from_addr = str(input(bcolors.GREEN + 'Enter sender email: '))
+            self.from_pwd = str(input(bcolors.GREEN + 'Enter sender email password: '))
+            self.subject = str(input(bcolors.GREEN + 'Enter email subject: '))
+            self.message = str(input(bcolors.GREEN + 'Enter email message: '))
+
+            self.full_message = f"From: {self.from_addr}\nTo: {self.target}\nSubject: {self.subject}\n\n{self.message}"
+
+            self.server_conn = smtplib.SMTP(self.server, self.port)
+            self.server_conn.ehlo()
+            self.server_conn.starttls()
+            self.server_conn.login(self.from_addr, self.from_pwd)
+        except Exception as e:
+            print(f'ERROR: {e}')
+            sys.exit(1)
+
+    def send_email(self):
+        try:
+            for i in range(self.num_emails):
+                self.server_conn.sendmail(self.from_addr, self.target, self.full_message)
+                print(bcolors.YELLOW + f'Email {i + 1} sent successfully!')
+            self.server_conn.close()
+            print(bcolors.GREEN + 'All emails sent successfully.')
+        except Exception as e:
+            print(f'ERROR: {e}')
+            sys.exit(1)
+
+
+if __name__ == '__main__':
+    banner()
+    email_sender = EmailSender()
+    email_sender.email_setup()
+    email_sender.send_email()
